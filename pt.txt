@@ -1,0 +1,172 @@
+hostname R1
+
+etherchannel
+
+interface range fa0/1-5
+channel-group 1 mode active
+int port-channel 1
+switchport mode trunk (sw m t)
+
+vtp
+
+vtp domain gyak_zipi
+vtp password gyak_gypass
+vtp mode server
+vtp mode client
+
+en
+conf t
+banner motd 'Udvozlom!'
+service password-encryption
+enable password gy-pass
+line console 0
+password gy-pass
+login
+
+ssh
+
+line vty 0
+login local
+transport input ssh
+password gyakorlas-ssh
+
+ospf
+router ospf 41
+network 172.168.19.4 0.0.0.3 area 21
+passive-interface g0/0 vagy g0/1
+
+rip
+router rip
+version 2
+network 172.168.19.0
+
+eigrp
+router eigrp 34
+network 172.168.19.0 0.0.0.3
+
+EIGRP
+
+router eigrp 10
+network 10.0.0.8 0.0.0.3
+redistribute rip metric 1544 100 255 1 100
+redistribute ospf 1 metric 1544 100 255 1 100
+
+OSPF 
+
+router ospf 1
+router-id 2.2.2.2
+network 10.0.0.4 0.0.0.3 area 0
+redistribute rip subnets
+redistribute eigrp 10 subnets
+
+RIP
+
+router rip
+version 2
+network 10.0.0.0
+redistribute ospf 1 metric 2
+redistribute eigrp 10 metric 2
+
+
+BGP
+
+redistribute rip
+redistribute ospf 1
+redistribute eigrp 10
+vlan
+
+switchbe
+
+int "fa0/24"
+switchport mode access
+switchport access vlan "16"
+
+létrehozzuk a másik switch részére a vlant
+
+vlan 17
+name vlan17
+
+routerbe
+
+int g0/0.17
+encapsulation dot1q 17 avagy a vlan száma
+ip address 0.0.0.0 0.0.0.0
+ip helper-address 0.0.0.0 (szerver címe)
+
+
+
+switchen g0/1
+switchport mode trunk
+interface range fa01-4
+channel-group mode 1 active
+interface port-channel 1
+	switchport mode trunk a switchen visszafele
+
+(ha több vlant kell megcsinálni akkor kell VTP)
+
+	vtp domain asd
+	vpt pass asd
+	vpt mode server
+	vpt mode client
+
+wireless router - gui
+
+wpa2 personal - aes - passphrase: "jelszó"
+
+Dhcp
+
+ip dhcp excluded-address 192.168.1.1 192.168.1.10
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 0.0.0.0
+
+
+
+
+ip-címek
+
+
+32 255.255.255.255
+31 255.255.255.254
+30 255.255.255.252 2
+29 255.255.255.248 6
+28 255.255.255.240 14
+27 255.255.255.224 30
+26 255.255.255.192 62
+25 255.255.255.128 126
+24 255.255.255.0 254
+23 255.255.254.0 510
+22 255.255.252.0 1022
+21 255.255.248.0 2046
+20 255.255.240.0 4094
+19 255.255.224.0 8190
+18 255.255.192.0 16382
+17 255.255.128.0 32766
+16 255.255.0.0 65534
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
